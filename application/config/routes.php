@@ -49,6 +49,27 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | Examples:	my-controller/index	-> my_controller/index
 |		my-controller/my-method	-> my_controller/my_method
 */
-$route['default_controller'] = 'welcome';
+$route['default_controller'] = 'home/indexUser';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
+
+$route['admin/user/action'] = 'user/actions';
+$route['admin/user/action/:num'] = 'user/actions';
+$route['admin/user/delete/:num'] = 'user/delete';
+
+$route['admin/sport-type'] = 'sport/sportType';
+$route['admin/sport-type/action'] = 'sport/sportType_actions';
+$route['admin/sport-type/action/:num'] = 'sport/sportType_actions';
+$route['admin/sport-type/delete/:num'] = 'sport/sportType_delete';
+
+$route['admin/league'] = 'league/indexAdmin';
+$route['admin/league/action'] = 'league/actions';
+$route['admin/league/action/:num'] = 'league/actions';
+$route['admin/league/delete/:num'] = 'league/delete';
+
+$route['admin/sport-club'] = 'sport/sportClub';
+$route['admin/sport-club/action'] = 'sport/sportClub_actions';
+$route['admin/sport-club/action/:num'] = 'sport/sportClub_actions';
+$route['admin/sport-club/delete/:num'] = 'sport/sportClub_delete';
+
+
