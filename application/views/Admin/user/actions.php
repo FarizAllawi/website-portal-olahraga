@@ -1,6 +1,6 @@
 <form method="post">
     <label for="fullname">Nama Lengkap</label>
-    <input type="text" name="fullname" id="fullname" value="<?php echo set_value('fullname') ? set_value('fullname') : (isset($data_user) ? $data_user->fullname : '') ; ?>"><br>
+    <input type="text" name="fullname" id="fullname" value="<?php echo set_value('fullname') ? set_value('fullname') : (isset($data_user) ? $data_athlete->fullname : '') ; ?>"><br>
 
     <label for="email">email</label>
     <input type="email" name="email" id="email" value="<?php echo set_value('email') ? set_value('email') : (isset($data_user) ? $data_user->email : '') ; ?>"><br>

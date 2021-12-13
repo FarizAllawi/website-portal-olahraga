@@ -10,7 +10,7 @@
         echo empty(set_value('sport_type')) || (set_value('sport_type') == "--- Pilih Tipe Olahraga ---") ?"<option>--- Pilih Tipe Olahraga ---</option>" : ''; 
         foreach ($data_sportType as $sport) {
             if ( (isset($data_league) && $data_league->sport_type == $sport->id) || set_value('sport_type') == $sport->id) {
-                echo "<option value='$sport->id'selected>$sport->name_type</option>";  
+                echo "<option value='$sport->id' selected>$sport->name_type</option>";  
             }
             else {
                 echo "<option value='$sport->id'>$sport->name_type</option>";

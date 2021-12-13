@@ -1,5 +1,5 @@
 <?php
-$id = !empty($this->uri->segment(4)) ? $this->uri->segment(4) : '';
+$id = !empty($this->uri->segment(4)) ? $this->uri->segment(4) : null;
 
 echo form_open_multipart('admin/sport-club/action/' . $id); ?>
 <label for="name_league">Nama Club</label>
@@ -10,7 +10,13 @@ echo form_open_multipart('admin/sport-club/action/' . $id); ?>
 
 <label for="avatar">Logo</label>
 <input type="file" name="logo" id="logo-baru">
-<input type="hidden" name="logo-lama" value="<?php echo set_value('logo-lama') ? set_value('logo-lama') : (isset($data_sportClub) ? $data_sportClub->logo : ''); ?>">
+<?php 
+    if (!empty($id)) {
+?>
+        <input type='hidden' name='logo-lama' value="<?php echo $data_sportClub->logo?>">
+<?php
+    }
+?>
 
 <label for="sport_type">Liga</label>
 <select name="liga">
@@ -32,5 +38,8 @@ echo form_open_multipart('admin/sport-club/action/' . $id); ?>
 </select>
 <button type="submit">submit</button> <br>
 
-<?php echo validation_errors() ?>
+<?php 
+    echo validation_errors() ;
+    echo !empty($error) ? $error : null;
+?>
 </form>

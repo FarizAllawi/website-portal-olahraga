@@ -1,7 +1,13 @@
 <?php
+defined('BASEPATH') OR exit('No direct script access allowed');
 
 class M_Sport_Club extends CI_Model
 {
+
+    public function __construct()
+    {
+        $this->load->library('upload');
+    }
 
     public function get($id = NULL)
     {
@@ -12,24 +18,31 @@ class M_Sport_Club extends CI_Model
         }
     }
 
-    public function actions($id = NULL)
+    public function get_by_league($id) 
     {
-        $upload = isset($this->upload->data()) ? $this->upload->data() : '';
+        return $this->db->query("SELECT * FROM sport_club WHERE sport_league = $id")->result();
+    }
+
+    public function get_by_sportType($id)
+    {
+        return $this->db->query("SELECT sport_club.* FROM `sport_club` , league, sport_type WHERE sport_club.sport_league = league.id AND league.sport_type = sport_type.id AND sport_type.id = $id;")->result();
+    }   
+
+    public function actions($id = NULL, $logo = NULL)
+    {
         if (!empty($id)) {
             $data = [
                 'name' => $this->input->post('name'),
                 'country' => $this->input->post('country'),
-                'logo' => empty($this->upload->data()) ? site_url('upload/' . $upload['file_name']) : $this->input->post('logo-lama'),
+                'logo' => !empty($logo) ? site_url('upload/' . $logo) : $this->input->post('logo-lama'),
                 'sport_league' => $this->input->post('liga'),
             ];
             return $this->db->update('sport_club', $data, array('id' => $id));
         } else {
-            die("TRUE");
-
             $data = [
                 'name' => $this->input->post('name'),
                 'country' => $this->input->post('country'),
-                'logo' => site_url('upload/' . $upload['file_name']),
+                'logo' => site_url('upload/' . $logo),
                 'sport_league' => $this->input->post('liga'),
             ];
             return $this->db->insert('sport_club', $data);

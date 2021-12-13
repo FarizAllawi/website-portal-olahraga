@@ -1,6 +1,6 @@
 <?php 
 
-class User extends CI_Controller {
+class UserController extends CI_Controller {
     
     public function __construct() {
         parent::__construct();
@@ -9,7 +9,12 @@ class User extends CI_Controller {
     }
 
     public function index() {
-        echo "INDEX";
+        echo "INDEX USER";
+        $context = [
+            'data_user' => $this->M_User->get(),
+        ];
+        echo '<pre>';
+        echo var_dump($context);
     }
 
     public function actions() {
@@ -77,7 +82,6 @@ class User extends CI_Controller {
     public function username_check($str) {
         if ($this->M_User->check_username($str) === TRUE) return TRUE;
         $this->form_validation->set_message('username_check','*Username sudah digunakan');
-        return FALSE;
-            
+        return FALSE; 
     }
 }

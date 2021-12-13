@@ -49,27 +49,63 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | Examples:	my-controller/index	-> my_controller/index
 |		my-controller/my-method	-> my_controller/my_method
 */
-$route['default_controller'] = 'home/indexUser';
+$route['default_controller'] = 'HomeController/indexUser';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
-$route['admin/user/action'] = 'user/actions';
-$route['admin/user/action/:num'] = 'user/actions';
-$route['admin/user/delete/:num'] = 'user/delete';
 
-$route['admin/sport-type'] = 'sport/sportType';
-$route['admin/sport-type/action'] = 'sport/sportType_actions';
-$route['admin/sport-type/action/:num'] = 'sport/sportType_actions';
-$route['admin/sport-type/delete/:num'] = 'sport/sportType_delete';
-
-$route['admin/league'] = 'league/indexAdmin';
-$route['admin/league/action'] = 'league/actions';
-$route['admin/league/action/:num'] = 'league/actions';
-$route['admin/league/delete/:num'] = 'league/delete';
-
-$route['admin/sport-club'] = 'sport/sportClub';
-$route['admin/sport-club/action'] = 'sport/sportClub_actions';
-$route['admin/sport-club/action/:num'] = 'sport/sportClub_actions';
-$route['admin/sport-club/delete/:num'] = 'sport/sportClub_delete';
+$route['review'] = 'NewsController/reviews';
+$route['review/action/:num'] = 'NewsController/reviews_actions';
+$route['review/action/:num/:num'] = 'NewsController/reviews_actions';
+$route['review/delete/:num'] = 'NewsController/reviews_delete';
 
 
+$route['admin/user'] = 'UserController/index';
+$route['admin/user/action'] = 'UserController/actions';
+$route['admin/user/action/:num'] = 'UserController/actions';
+$route['admin/user/delete/:num'] = 'UserController/delete';
+
+$route['admin/sport-type'] = 'SportController/sportType';
+$route['admin/sport-type/action'] = 'SportController/sportType_actions';
+$route['admin/sport-type/action/:num'] = 'SportController/sportType_actions';
+$route['admin/sport-type/delete/:num'] = 'SportController/sportType_delete';
+
+$route['admin/league'] = 'LeagueController/indexAdmin';
+$route['admin/league/action'] = 'LeagueController/actions';
+$route['admin/league/action/:num'] = 'LeagueController/actions';
+$route['admin/league/delete/:num'] = 'LeagueController/delete';
+
+$route['admin/sport-club'] = 'SportController/sportClub';
+$route['admin/sport-club/action'] = 'SportController/sportClub_actions';
+$route['admin/sport-club/action/:num'] = 'SportController/sportClub_actions';
+$route['admin/sport-club/delete/:num'] = 'SportController/sportClub_delete';
+
+$route['admin/player-type'] = 'AthleteController/playerType';
+$route['admin/player-type/action'] = 'AthleteController/playerType_actions';
+$route['admin/player-type/action/:num'] = 'AthleteController/playerType_actions';
+$route['admin/player-type/delete/:num'] = 'AthleteController/playerType_delete';
+
+$route['admin/foul-type'] = 'AthleteController/foulType';
+$route['admin/foul-type/action'] = 'AthleteController/foulType_actions';
+$route['admin/foul-type/action/:num'] = 'AthleteController/foulType_actions';
+$route['admin/foul-type/delete/:num'] = 'AthleteController/foulType_delete';
+
+$route['admin/match/'] = 'MatchController/indexAdmin';
+$route['admin/match/action/:num/:num'] = 'MatchController/actions';
+$route['admin/match/action/:num/:num/:num'] = 'MatchController/actions';
+$route['admin/match/delete/:num'] = 'MatchController/delete';
+
+$route['admin/athlete'] = 'AthleteController/athlete';
+$route['admin/athlete/action/:num'] = 'AthleteController/actions';
+$route['admin/athlete/action/:num/:num'] = 'AthleteController/actions';
+$route['admin/athlete/delete/:num'] = 'AthleteController/delete';
+
+$route['admin/foul'] = 'AthleteController/foul';
+$route['admin/foul/action/:num'] = 'AthleteController/foul_actions';
+$route['admin/foul/action/:num/:num'] = 'AthleteController/foul_actions';
+$route['admin/foul/delete/:num'] = 'AthleteController/foul_delete';
+
+$route['admin/news'] = 'NewsController/news';
+$route['admin/news/action/:num'] = 'NewsController/news_actions';
+$route['admin/news/action/:num/:num'] = 'NewsController/news_actions';
+$route['admin/news/delete/:num'] = 'NewsController/news_delete';

@@ -1,6 +1,7 @@
 <?php
+defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Sport extends CI_Controller
+class SportController extends CI_Controller
 {
 
     public function __construct()
@@ -8,6 +9,20 @@ class Sport extends CI_Controller
         parent::__construct();
         $this->load->library('form_validation');
         $this->load->model(array('M_Sport_Type', 'M_Sport_Club', 'M_League'));
+    }
+
+    public function upload_data() 
+    {
+        $config['upload_path']          = FCPATH.'uploads';
+        $config['allowed_types']        = 'jpg|jpeg|png';
+        $config['file_name']            = uniqid();
+        $config['overwrite']            = true;
+        $config['max_size']             = 2048; // 1MB
+        // $config['max_width']            = 1080;
+        // $config['max_height']           = 1080;
+        $this->upload->initialize($config);
+        if (!$this->upload->do_upload('logo')) return $this->upload->display_errors();
+        else return $this->upload->data();
     }
 
     /**
@@ -85,48 +100,40 @@ class Sport extends CI_Controller
         $this->form_validation->set_rules('name', 'Nama Club', 'required', array('required' => "Nama Club tidak boleh kosong"));
         $this->form_validation->set_rules('country', 'Negara', 'required', array('required' => "Negara tidak boleh kosong"));
         $this->form_validation->set_rules('liga', 'Liga', 'required', array('required' => "Liga tidak boleh kosong"));
-
+        
         if ($this->input->method() === 'post') {
-            if (empty($id)) {
-                if (empty($_FILES['logo']['name'])) {
-                    $this->form_validation->set_rules('logo', 'Logo', 'required', array('required' => "Logo tidak boleh kosong"));
-                }
-
-                if ($this->form_validation->run() === TRUE) {
-                    // the user id contain dot, so we must remove it
-                    $file_name = str_replace('.', '', $this->input->post('name'));
-                    $config['upload_path']          = './upload/';
-                    $config['allowed_types']        = 'jpg|jpeg|png';
-                    $config['file_name']            = $file_name;
-                    $config['overwrite']            = true;
-                    $config['max_size']             = 2048; // 1MB
-                    // $config['max_width']            = 1080;
-                    // $config['max_height']           = 1080;
-
-                    $this->load->library('upload', $config);
-                    if (!$this->upload->do_upload('logo')) {
-                        $data['error'] = $this->upload->display_errors();
-                    } else {
-                        $uploaded_data = $this->upload->data();
-                        $this->M_Sport_Club->actions();
-                        redirect('admin/sport-club');
-                    }
-                }
+            if (!empty($id)) {
+                $this->form_validation->set_rules('logo-lama', 'Logo', 'required', array('required' => "Logo tidak boleh kosong")); 
             } else {
-                $this->form_validation->set_rules('logo-lama', 'Logo', 'required', array('required' => "Logo tidak boleh kosong"));
-                if ($this->form_validation->run() === TRUE) {
-                    $this->M_Sport_Club->actions($id);
+                if (empty($_FILES['logo']['name']))
+                         $this->form_validation->set_rules('logo', 'Logo', 'required', array('required' => "Logo tidak boleh kosong"));
+            }
+            if ($this->form_validation->run() === TRUE) {
+                $upload = null;
+                if (!empty($_FILES['logo']['name'])) {
+                    $upload = $this->upload_data();
+                }
+
+                if (empty($id)) {
+                    if (!empty($upload['file_name'])) $this->M_Sport_Club->actions(NULL, $upload['file_name']);
+                    else $this->M_Sport_Club->actions();
+                    redirect('admin/sport-club');
+                }
+                else {
+                    if (!empty($upload['file_name'])) $this->M_Sport_Club->actions($id, $upload['file_name']);
+                    else $this->M_Sport_Club->actions($id);
                     redirect('admin/sport-club');
                 }
             }
         }
+
         $this->load->view('Admin/sport-club/actions', $context);
     }
 
     public function sportClub_delete()
     {
         $id = $this->uri->segment(4);
-        $this->M_Sport_Type->delete($id);
-        redirect('admin/sport-type');
+        $this->M_Sport_Club->delete($id);
+        redirect('admin/sport-club');
     }
 }

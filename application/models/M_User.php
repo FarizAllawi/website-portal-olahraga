@@ -6,6 +6,8 @@ class M_User extends CI_Model {
     {
         if (!empty($id))
             return $this->db->get('user', array('id'=>$id))->row();
+        else 
+            return $this->db->get('user')->result();
     }
 
     public function actions($id = NULL)
@@ -15,7 +17,7 @@ class M_User extends CI_Model {
                 'fullname' => $this->input->post('fullname'),
                 'email' => $this->input->post('email'),
                 'username' => $this->input->post('username'),
-                'password' => $this->input->post('password'),
+                'password' => md5($this->input->post('password')),
                 'gender' => $this->input->post('gender'),
                 'role' => $this->input->post('role'),
             ];
@@ -26,7 +28,7 @@ class M_User extends CI_Model {
                 'fullname' => $this->input->post('fullname'),
                 'email' => $this->input->post('email'),
                 'username' => $this->input->post('username'),
-                'password' => $this->input->post('password'),
+                'password' => md5($this->input->post('password')),
                 'gender' => $this->input->post('gender'),
                 'role' => $this->input->post('role'),
             ];
