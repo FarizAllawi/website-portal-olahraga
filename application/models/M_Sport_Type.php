@@ -12,6 +12,11 @@ class M_Sport_Type extends CI_Model {
         }
     }
 
+    public function get_by_name($name) {
+        return $this->db->query("SELECT * FROM `sport_type` WHERE sport_type.name_type LIKE '%$name%'")->row();
+
+    }
+
     public function actions($id = NULL) 
     {
         if (!empty($id)) {

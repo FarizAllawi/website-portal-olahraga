@@ -8,12 +8,34 @@ class SportController extends CI_Controller
     {
         parent::__construct();
         $this->load->library('form_validation');
-        $this->load->model(array('M_Sport_Type', 'M_Sport_Club', 'M_League'));
+        $this->load->model(array('M_Sport_Type', 'M_Sport_Club', 'M_League','M_News'));
+    }  
+
+    public function sport()
+    {
+        $slug = str_replace('-', ' ',$this->uri->segment(2));
+        $sport = $this->M_Sport_Type->get_by_name($slug);
+        $data_league = $this->M_League->get($sport->id);
+        $data_news =  [];
+        foreach ($data_league as $league) {
+            $data_news[$league->name_league] = $this->M_News->getNews($league->id);
+        }
+        $context = [
+            'lastest_news_result' => $this->M_News->getSport_lastest_news_result($sport->id),
+            'lastest_news' => $this->M_News->getSport_lastest_news($sport->id),
+            'data_sportType' => $this->M_Sport_Type->get(),
+            'data_sport' => $sport,
+            'data_league' => $data_league,
+            'data_news' => $data_news,
+            // 'data_match' => $this->M_Match->getMatch_today($league->id)
+        ];
+
+        $this->template->user_template('User/sport', $context);
     }
 
     public function upload_data() 
     {
-        $config['upload_path']          = FCPATH.'uploads';
+        $config['upload_path']          = FCPATH.'upload';
         $config['allowed_types']        = 'jpg|jpeg|png';
         $config['file_name']            = uniqid();
         $config['overwrite']            = true;
@@ -30,16 +52,17 @@ class SportController extends CI_Controller
      */
     public function sportType()
     {
-        echo "INDEX SPORTTYPE";
+        isAdminLogin();
         $context = [
             'data_sportType' => $this->M_Sport_Type->get(),
         ];
-        echo '<pre>';
-        echo var_dump($context);
+        $this->template->show('admin/sport-type/index',$context);
+
     }
 
     public function sportType_actions()
     {
+        isAdminLogin();
         $id = !empty($this->uri->segment(4)) ? $this->uri->segment(4) : NULL;
         $context = [
             'data_sportType' => !empty($id) ? $this->M_Sport_Type->get($id) : null,
@@ -52,11 +75,12 @@ class SportController extends CI_Controller
             else $this->M_Sport_Type->actions();
             redirect('admin/sport-type');
         }
-        $this->load->view('Admin/sport-type/actions', $context);
+        $this->template->show('Admin/sport-type/actions', $context);
     }
 
     public function sportType_delete()
     {
+        isAdminLogin();
         $id = $this->uri->segment(4);
         $this->M_Sport_Type->delete($id);
         redirect('admin/sport-type');
@@ -79,27 +103,53 @@ class SportController extends CI_Controller
     /**
      * SPORT CLUB
      */
+    public function select_sportType() {
+        isAdminLogin();
+        $context = [
+            'sport_type' => $this->M_Sport_Type->get()
+        ];
+        $this->template->show('Admin/sport-club/select-sportType', $context);
+    }
+
+    public function select_league() {
+        isAdminLogin();
+        $sportType_id = $this->uri->segment(4);
+        if (empty($sportType_id)) {
+            show_404();
+        }
+        $context = [
+            'data_league' => $this->M_League->get($sportType_id)
+        ];
+        $this->template->show('Admin/sport-club/select-league', $context);
+    }
+
     public function sportClub()
     {
-        echo "INDEX SPORTCLUB";
+        isAdminLogin();
+        $liga_id = $this->uri->segment(4);
         $context = [
-            'data_sportType' => $this->M_Sport_Club->get(),
+            'data_club' => $this->M_Sport_Club->get($liga_id),
         ];
-        echo '<pre>';
-        echo var_dump($context);
+        $this->template->show('admin/sport-club/index', $context);
+
     }
 
     public function sportClub_actions()
     {
-        $id = !empty($this->uri->segment(4)) ? $this->uri->segment(4) : NULL;
+        isAdminLogin();
+        $league_id = $this->uri->segment(4);
+        $id = !empty($this->uri->segment(5)) ? $this->uri->segment(5) : NULL;
+
+        if (empty($league_id)){
+            redirect('admin/sport-club');
+        }
+
         $context = [
-            'data_sportClub' => !empty($id) ? $this->M_Sport_Club->get($id) : null,
-            'data_league' => $this->M_League->get(),
+            'data_sportClub' => !empty($id) ? $this->M_Sport_Club->get($league_id, $id) : null
         ];
 
         $this->form_validation->set_rules('name', 'Nama Club', 'required', array('required' => "Nama Club tidak boleh kosong"));
         $this->form_validation->set_rules('country', 'Negara', 'required', array('required' => "Negara tidak boleh kosong"));
-        $this->form_validation->set_rules('liga', 'Liga', 'required', array('required' => "Liga tidak boleh kosong"));
         
         if ($this->input->method() === 'post') {
             if (!empty($id)) {
@@ -113,27 +163,28 @@ class SportController extends CI_Controller
                 if (!empty($_FILES['logo']['name'])) {
                     $upload = $this->upload_data();
                 }
+                
 
                 if (empty($id)) {
-                    if (!empty($upload['file_name'])) $this->M_Sport_Club->actions(NULL, $upload['file_name']);
-                    else $this->M_Sport_Club->actions();
-                    redirect('admin/sport-club');
+                    $this->M_Sport_Club->actions(NULL, $league_id , $upload['file_name']);
+                    redirect('admin/sport-club/league/'.$league_id);
                 }
                 else {
-                    if (!empty($upload['file_name'])) $this->M_Sport_Club->actions($id, $upload['file_name']);
-                    else $this->M_Sport_Club->actions($id);
-                    redirect('admin/sport-club');
+                    if (!empty($upload['file_name'])) $this->M_Sport_Club->actions($id, $league_id, $upload['file_name']);
+                    else $this->M_Sport_Club->actions($id, $league_id);
+                    redirect('admin/sport-club/league/'.$league_id);
                 }
             }
         }
 
-        $this->load->view('Admin/sport-club/actions', $context);
+        $this->template->show('Admin/sport-club/actions', $context);
     }
 
     public function sportClub_delete()
     {
+        isAdminLogin();
         $id = $this->uri->segment(4);
         $this->M_Sport_Club->delete($id);
-        redirect('admin/sport-club');
+        echo "<script>history.back()</script>";
     }
 }

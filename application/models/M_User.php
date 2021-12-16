@@ -5,9 +5,13 @@ class M_User extends CI_Model {
     public function get($id = NULL)
     {
         if (!empty($id))
-            return $this->db->get('user', array('id'=>$id))->row();
+            return $this->db->get_where('user', array('id'=>$id))->row();
         else 
             return $this->db->get('user')->result();
+    }
+
+    public function get_by_username($username) {
+        return $this->db->get_where('user', array('username'=>$username));
     }
 
     public function actions($id = NULL)
@@ -17,8 +21,7 @@ class M_User extends CI_Model {
                 'fullname' => $this->input->post('fullname'),
                 'email' => $this->input->post('email'),
                 'username' => $this->input->post('username'),
-                'password' => md5($this->input->post('password')),
-                'gender' => $this->input->post('gender'),
+                'gender' => !empty($this->input->post('gender')) ? $this->input->post('gender') : $this->input->post('gender-lama'),
                 'role' => $this->input->post('role'),
             ];
             return $this->db->update('user', $data, array('id'=> $id));
@@ -28,7 +31,7 @@ class M_User extends CI_Model {
                 'fullname' => $this->input->post('fullname'),
                 'email' => $this->input->post('email'),
                 'username' => $this->input->post('username'),
-                'password' => md5($this->input->post('password')),
+                'password' => password_hash($this->input->post('password'),PASSWORD_BCRYPT),
                 'gender' => $this->input->post('gender'),
                 'role' => $this->input->post('role'),
             ];

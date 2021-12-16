@@ -6,14 +6,32 @@ class NewsController extends CI_Controller{
     public function __construct()
     {
         parent::__construct();
+        // Memanggil library visitor dengan method count
+        $this->visitor->count();
         $this->load->library('form_validation');
-        $this->load->model(array('M_News', 'M_Review'));
+        $this->load->model(array('M_News', 'M_Review', 'M_Sport_Type', 'M_League', 'M_Match'));
 
     }
 
+    public function news_page() 
+    {
+        $news_slug = $this->uri->segment(2);
+        $news = $this->M_News->getNews_by_slug($news_slug);
+        $context = [
+            'lastest_news_result' => $this->M_News->get_lastest_news_result(),
+            'data_sportType' => $this->M_Sport_Type->get(),
+            'news' => $news,
+            'data_match' => $this->M_Match->getMatch_today($news->sport_league)
+        ];
+        $this->template->user_template('User/news-detail', $context);
+    }
+
+
+
+
     public function upload_data() 
     {
-        $config['upload_path']          = FCPATH.'uploads';
+        $config['upload_path']          = FCPATH.'upload';
         $config['allowed_types']        = 'jpg|jpeg|png';
         $config['file_name']            = uniqid();
         $config['overwrite']            = true;
@@ -28,25 +46,46 @@ class NewsController extends CI_Controller{
     /**
      * NEWS
      */
+    public function select_sportType() {
+        isAdminLogin();
+        $context = [
+            'sport_type' => $this->M_Sport_Type->get()
+        ];
+        $this->template->show('Admin/news/select-sportType', $context);
+    }
+
+    public function select_league() {
+        isAdminLogin();
+        $sportType_id = $this->uri->segment(4);
+        if (empty($sportType_id)) {
+            show_404();
+        }
+        $context = [
+            'data_league' => $this->M_League->get($sportType_id)
+        ];
+        $this->template->show('Admin/news/select-league', $context);
+    }
+
     public function news()
     {
-        echo "INDEX PLAYER NEWS";
+        isAdminLogin();
+        $league_id = $this->uri->segment(4);
         $context = [
-            'data_news' => $this->M_News->getNews(),
+            'data_news' => $this->M_News->getNews($league_id),
         ];
-        echo '<pre>';
-        echo var_dump($context);
+        $this->template->show('Admin/news/index', $context);
     }
 
     public function news_actions()
     {
-        $id_sport_type = $this->uri->segment(4);
+        isAdminLogin();
+        $league_id = $this->uri->segment(4);
         $id_news = !empty($this->uri->segment(5)) ? $this->uri->segment(5) : NULL;
         $context = [
-            'data_news' => !empty($id_news) ? $this->M_News->getNews($id_news) : null,
+            'data_news' => !empty($id_news) ? $this->M_News->getNews($league_id,$id_news) : null,
         ];
 
-        if (empty($id_sport_type)) {
+        if (empty($league_id)) {
             show_404();
         }
         else {
@@ -54,16 +93,17 @@ class NewsController extends CI_Controller{
             $this->form_validation->set_rules('title', 'Title', 'required', array('required' => "Title tidak boleh kosong"));
             $this->form_validation->set_rules('description', 'Description', 'required', array('required' => "Description tidak boleh kosong"));
             $this->form_validation->set_rules('body', 'Weight', 'required', array('required' => "Body tidak boleh kosong"));
-            $this->form_validation->set_rules('news_status', 'Date Birth', 'required', array('required' => "Tanggal Lahir tidak boleh kosong"));
+            $this->form_validation->set_rules('news_status', 'News Status', 'required', array('required' => "News Status tidak boleh kosong"));
+            if (!empty($id_news)) {
+                $this->form_validation->set_rules('thumbnail-lama', 'Thumbnail', 'required', array('required' => "Thumbnail tidak boleh kosong")); 
+            } else {
+                if (empty($_FILES['thumbnail']['name']))
+                        $this->form_validation->set_rules('thumbnail', 'Thumbnail', 'required', array('required' => "Thumbnail tidak boleh kosong"));
+            }
 
+            
 
             if ($this->input->method() === 'post') {
-                if (!empty($id_athlete)) {
-                    $this->form_validation->set_rules('thumbnail-lama', 'Thumbnail', 'required', array('required' => "Thumbnail tidak boleh kosong")); 
-                } else {
-                    if (empty($_FILES['thumbnail']['name']))
-                            $this->form_validation->set_rules('thumbnail', 'Thumbnail', 'required', array('required' => "Thumbnail tidak boleh kosong"));
-                }
                 if ($this->form_validation->run() === TRUE) {
                     $upload = null;
                     if (!empty($_FILES['thumbnail']['name'])) {
@@ -71,19 +111,19 @@ class NewsController extends CI_Controller{
                     }
 
                     if (empty($id_news)) {
-                        if (!empty($upload['file_name'])) $this->M_News->actions(NULL, $upload['file_name']);
-                        else $this->M_News->actions();
-                        redirect('admin/news');
+                        if (!empty($upload['file_name'])) $this->M_News->actions($league_id, NULL, $upload['file_name']);
+                        else $this->M_News->actions($league_id);
+                        redirect('admin/news/league/'.$league_id);
                     }
                     else {
-                        if (!empty($upload['file_name'])) $this->M_News->actions($id_news, $upload['file_name']);
-                        else $this->M_News->actions($id_news);
-                        redirect('admin/news');
+                        if (!empty($upload['file_name'])) $this->M_News->actions($league_id, $id_news, $upload['file_name']);
+                        else $this->M_News->actions($league_id , $id_news);
+                        redirect('admin/news/league/'.$league_id);
                     }
                 }
             }
 
-            $this->load->view('admin/news/actions', $context);
+            $this->template->show('admin/news/actions', $context);
         }
 
     }
@@ -92,7 +132,8 @@ class NewsController extends CI_Controller{
     {
         $id = $this->uri->segment(4);
         $this->M_News->delete($id);
-        redirect('admin/news');
+        echo "<script>history.back()</script>";
+
     }
 
 

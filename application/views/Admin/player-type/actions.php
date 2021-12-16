@@ -1,25 +1,17 @@
-<form method="post">
-    <label for="player_type">Tipe Nama</label>
-    <input type="text" name="player_type" id="player_type" value="<?php echo set_value('name_type') ? set_value('name_type') : (isset($data_playerType) ? $data_playerType->player_type : '') ; ?>"><br>
-    <label for="sport_type">Tipe Olahraga</label>
-    <select name="sport_type">
-        <?php
-        // var_dump($data_foulType);die;
-        if (empty($data_sportType)) {
-            echo "<option><strong>Data Tipe Olahraga Kosong !!!</strong></option>";
-        } else {
-            echo empty(set_value('sport_type')) || (set_value('sport_type') == "--- Pilih Tipe Olahraga ---") ? "<option>--- Pilih Tipe Olahraga ---</option>" : '';
-            foreach ($data_sportType as $sport) {
-                if (isset($data_playerType) || $sport->id && $sport->id == $data_playerType->sport_type) {
-                    echo "<option value='$sport->id' selected>$sport->name_type</option>";
-                } else {
-                    echo "<option value='$sport->id'>$sport->name_type</option>";
-                }
-            }
-        }
-        ?>
-    </select>
-    <button type="submit">submit</button> <br>
+<form class="modal-content" method="post">
+    <div class="modal-header">
+    <h5 class="modal-title" id="add-modal">Add/Edit Foul Type</h5>
+    </div>
+    <div class="modal-body">
+    <div class="mb-3">
+        <label class="form-label" for="player_type">Nama Tipe Pemain</label>
+        <input type="text" class="form-control" id="player_type" name="player_type" placeholder="Nama Pelanggaran" value="<?php echo set_value('player_type') ? set_value('player_type') : (isset($data_playerType) ? $data_playerType->player_type : '') ; ?>">
+        <span class="alert-danger"><?php echo form_error('player_type'); ?></span>
+    </div>
 
-    <?php echo validation_errors() ?>
+    </div>
+    <div class="modal-footer">
+    <a href="<?php echo site_url('admin/foul-type/'.$this->uri->segment(4))?>" class="btn btn-secondary">Cancel</a>
+    <button type="submit" class="btn btn-primary">Save</button>
+    </div>
 </form>
